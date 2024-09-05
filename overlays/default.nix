@@ -1,5 +1,5 @@
 self: super: {
-  linuxPackages_thead = super.linuxPackagesFor (
+  linuxPackages_loong99pi = super.linuxPackagesFor (
     super.callPackage ../pkgs/kernel {
       src = super.fetchgit {
         url = "https://gitee.com/FZDSLR/linux-kernel-for-99pi.git";
