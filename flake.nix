@@ -38,6 +38,7 @@
         ./modules/loong99pi-conf.nix
         ./modules/sd-image/sd-image-99pi.nix
         ./modules/user-group.nix
+        {nixpkgs.config.allowUnsupportedSystem = true;}
       ];
     };
     packages.x86_64-linux = {

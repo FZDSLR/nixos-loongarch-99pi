@@ -3,8 +3,8 @@ self: super: {
     super.callPackage ../pkgs/kernel {
       src = super.fetchgit {
         url = "https://gitee.com/FZDSLR/linux-kernel-for-99pi.git";
-        rev = "245cd912625c7fa1640cf99b8087931613636dbf";
-        sha256 = "sha256-6i45DsCUGr6Xo9s4T7D2iYGslrYx5VPEMGyWq8JMGpc=";
+        rev = "7e09206df204e5d1d2a2d9525ea0e64fa1f5150b";
+        sha256 = "sha256-E23QV3Q8PGlAGJj9VZsNGlsLJCLUPfqCZJ8uOc0qLqI=";
       };
       stdenv = super.gcc13Stdenv;
     }
