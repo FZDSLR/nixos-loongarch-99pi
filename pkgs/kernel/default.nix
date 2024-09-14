@@ -24,24 +24,8 @@
   modDirVersion = "6.9.0-rc7";
 
   inherit src lib stdenv;
-  
-  # path to the generated kernel config file
-  # 
-  # you can generate the config file based on the revyos_defconfig 
-  # by running `make revyos_defconfig` in the kernel source tree.
-  # and then copy the generated file(`.config`) to ./revyos_config in the same directory of this file.
-  # 
-  #   make revyos_defconfig   # generate the config file from revyos_defconfig (the default config file)
-  #   make menuconfig        # view and modify the generated config file(.config) via Terminal UI
-  #                          # input / to search, Ctrl+Backspace to delete.
-  #
-  # and need to add these three lines to the end of the generated config file:
-  #   CONFIG_DMIID=y
-  #   CONFIG_VECTOR=n
-  #   CONFIG_THEAD_ISA=n
+
   configfile = ./ls2k0300_99_pai_tfcard_config;
-  
-  # extraMeta.branch = "lp4a";
 
   allowImportFromDerivation = true;
 
@@ -49,8 +33,9 @@
 }).overrideAttrs (old: {
   name = "k"; # shorten the kernel name, dodge uboot length limits, otherwise it will make uboot fail to load kernel. 
   nativeBuildInputs = old.nativeBuildInputs ++ [ubootTools];
-  buildFlags = ["vmlinuz.efi"] ++ old.buildFlags;
+  buildFlags = ["vmlinuz.efi"] ++ old.buildFlags; # or can't run make install
 
+   # dirty method but it works
   postInstall = let 
     modDirVersion = "6.9.0-rc7"; 
   in
@@ -126,19 +111,4 @@
     # Delete empty directories
     find -empty -type d -delete
   '';
-#  preInstall = old.preInstall + ''\necho $PWD'' ;
-#  preInstall = let 
-#    installkernel = buildPackages.writeShellScriptBin "installkernel" ''
-#      cp -av $2 $4
-#      cp -av $3 $4
-#      ls --all
-#      echo $PWD
-#      echo $2
-#      cp -av $(dirname "$2")/uImage $4
-#      echo "error" >&2
-#      '';
-#    in ''
-#      installFlagsArray+=("-j1")
-#      export HOME=${installkernel}
-#    '';
 })

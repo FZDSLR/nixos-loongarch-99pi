@@ -8,10 +8,10 @@
    ];
 
   # https://github.com/chainsx/fedora-riscv-builder/blob/f46ae18/build.sh#L179-L184
-  boot.kernelParams = [ # 内核参数
+  boot.kernelParams = [ 
     "console=ttyS0,115200"
-   #  "root=UUID=${rootPartitionUUID}"
     "rootfstype=ext4"
+  #  "root=UUID=${rootPartitionUUID}"
     "rootwait"
     "rw"
     "earlycon"
@@ -48,10 +48,11 @@
     # for local usage, do not need to compress it.
     compressImage = false;
     # install firmware into a separate partition: /boot/firmware
-    populateFirmwareCommands = ''
-
+    populateFirmwareCommands = lib.optionalString (config.boot.loader.generic-extlinux-compatible.enable) ''
       ${config.boot.loader.generic-extlinux-compatible.populateCmd} -c ${config.system.build.toplevel} -d ./firmware
-    ''; # 驱动
+      '' + lib.optionalString (config.boot.loader.generic-extlinux-and-bootscr.enable) ''
+        ${config.boot.loader.generic-extlinux-and-bootscr.populateCmd} -c ${config.system.build.toplevel} -d ./firmware
+      ''; 
     firmwarePartitionName = "BOOT";
     firmwareSize = 200; # MiB
 

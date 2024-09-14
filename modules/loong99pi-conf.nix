@@ -1,26 +1,29 @@
-{ lib, pkgs, ... }: {
+{ lib, pkgs, nixpkgs, ... }: {
 
   # =========================================================================
   #      Board specific configuration
   # =========================================================================
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_loong99pi; # 定义使用的内核版本
+    kernelPackages = pkgs.linuxPackages_loong99pi; 
   
     initrd.includeDefaultModules = false;
-    initrd.availableKernelModules = lib.mkForce [ # 内核模块
+    initrd.availableKernelModules = lib.mkForce [ 
       "ext4" 
       "sd_mod" 
-      "mmc_block" # "spi_nor"
-      # "xhci_hcd"
+      "mmc_block" 
       "usbhid" "hid_generic"
     ];
   };
 
-  systemd.services."serial-getty@hvc0" = { # 虚拟控制台
+  systemd.services."serial-getty@hvc0" = {
     enable = false;
   };
 
+  imports = [./generic-extlinux-and-bootscr/default.nix] ++ lib.optional (builtins.pathExists ./extra.nix) ./extra.nix;
+
+  boot.loader.generic-extlinux-compatible.enable = false;
+  boot.loader.generic-extlinux-and-bootscr.enable = true;
 
   # Some filesystems (e.g. zfs) have some trouble with cross (or with BSP kernels?) here.
   boot.supportedFilesystems = lib.mkForce [
@@ -34,6 +37,8 @@
   networking.wireless.enable = true;
   networking.wireless.userControlled.enable = true;
 
+  time.timeZone = "Asia/Shanghai";
+
   hardware = {
     deviceTree = { # 设备树
       name = "loongson_2k0300_99_pai_tfcard.dtb";
@@ -43,14 +48,13 @@
     };
     # enableRedistributableFirmware = true;
 
-    # TODO GPU driver
     graphics = {
       enable = false;
     };
 
     # firmwares
     firmware = [
-      # TODO add GPU firmware
+
     ];
   };
 
@@ -62,7 +66,7 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "unstable"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 
   # =========================================================================
   #      Base NixOS Configuration
@@ -81,17 +85,20 @@
     vim
 
     neofetch
-    # fastfetch
-    # lm_sensors  # `sensors`
-    htop     # replacement of htop/nmon
+
+    lm_sensors
+    htop
+    unixbench
 
     openssl
     usbutils
     iw
-    # Peripherals
- #   mtdutils
- #   i2c-tools
- #   minicom
+    eza # rust
+    fzf # go
+
+    mtdutils
+    i2c-tools
+
   ];
 
   programs.ssh.package = pkgs.openssh;
@@ -101,8 +108,19 @@
     settings = {
       X11Forwarding = lib.mkDefault false;
       PasswordAuthentication = lib.mkDefault true;
+      PermitRootLogin = lib.mkDefault "prohibit-password";
     };
     openFirewall = lib.mkDefault true;
   };
+
+  swapDevices = [ {
+    device = "/var/lib/swapfile";
+    size = 512;
+  } ];
+
+  nix.registry.nixpkgs.flake = nixpkgs;
+  # make `nix repl '<nixpkgs>'` use the same nixpkgs as the one used by this flake.
+  environment.etc."nix/inputs/nixpkgs".source = "${nixpkgs}";
+  nix.nixPath = ["/etc/nix/inputs"];
 
 }

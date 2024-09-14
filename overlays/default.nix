@@ -51,6 +51,85 @@ self: super: {
     enableSystemd = true;
   };
 
+  unixbench = (super.unixbench.overrideAttrs (      
+    finalAttrs: previousAttrs: {
+      buildInputs = previousAttrs.buildInputs ++ [super.bash];
+      preFixup = ''
+        substituteInPlace $out/libexec/pgms/multi.sh \
+          --replace '/bin/sh "$' '${super.bash}/bin/bash "$'
+    
+        substituteInPlace $out/bin/ubench \
+          --subst-var out
+    
+        wrapProgram $out/bin/ubench \
+          --prefix PATH : ${super.lib.makeBinPath previousAttrs.runtimeDependencies}
+      '';
+    }
+  )).override {
+    withGL = false;
+    withX11perf = false;
+    # runtimeShell = super.bash;
+  };
+
+  libseccomp-git = ( super.libseccomp.overrideAttrs (
+    finalAttrs: previousAttrs: {
+      version = "2.5.6";
+      src = super.fetchurl {
+        url = "https://github.com/seccomp/libseccomp/archive/2847f10dddca72167309c04cd09f326fd3b78e2f.tar.gz";
+        sha256 = "sha256-QWj717SKfqKjblBr6SKGUR70SeWeRa/69tQhIFzh8PQ=";
+      };
+      preConfigure = ''
+        sed -i -e "s/0.0.0/2.5.6/" configure.ac
+        ./autogen.sh
+      '';
+      nativeBuildInputs = previousAttrs.nativeBuildInputs ++ [super.autoreconfHook];
+      doCheck = false;
+    }
+  ));
+
+  netavark = super.netavark.override (old: {
+    rustPlatform = old.rustPlatform // {
+      buildRustPackage = args: old.rustPlatform.buildRustPackage (args // {
+        # override src/cargoHash/buildFeatures here
+       version = "1.11.0";
+       src = super.fetchgit {
+          url = "https://github.com/containers/netavark.git";
+          rev = "ab4f101a39b687c01e2df578162c2fa16a881c1b";
+          sha256 = "sha256-X7AnOPX+Jvbfn6cOZUUv6vXp3v6yC9VFDqNElcQpsTk=";
+       };
+       cargoHash = "sha256-rHiOT0MYlxafGZU9aXIguf5C1gYvIz9PaRu+OpTQ1ss=";
+       nativeBuildInputs = [super.go-md2man  super.installShellFiles super.mandown super.protobuf];
+      });
+    };
+  });
+  
+  conmon = super.conmon.override {
+    libseccomp = self.libseccomp-git;
+  };
+
+  crun = super.crun.override {
+    libseccomp = self.libseccomp-git;
+  };
+
+  slirp4netns = super.slirp4netns.override {
+    libseccomp = self.libseccomp-git;
+  };
+
+  podman = super.podman.override {
+    extraRuntimes = [ self.crun ];
+    libseccomp = self.libseccomp-git;
+  };
+
+  openldap = super.openldap.overrideAttrs {
+    doCheck = false;
+  };
+
+  liburcu = super.liburcu.overrideAttrs (
+    finalAttrs: previousAttrs: {
+      buildFlags = [" --host=loongarch64-unknown-linux-gnu"]; 
+    }
+  );
+
   systemd =
     (super.systemd.overrideAttrs (previousAttrs: rec {
       postInstall =
