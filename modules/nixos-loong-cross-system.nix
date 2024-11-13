@@ -1,7 +1,8 @@
 { lib, pkgs, ... }:
 {
   nixpkgs.crossSystem = {
-    system = "loongarch64-linux-gnu";
+    system = "loongarch64-linux";
+    config = "loongarch64-unknown-linux-gnu";
     linux-kernel = {
       name = "loong64";
       baseConfig = "defconfig";

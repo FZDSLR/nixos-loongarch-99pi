@@ -1,23 +1,45 @@
 {
   "nodes": {
-    "nixpkgs": {
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1724740600,
-        "narHash": "sha256-JP6fFxQyeWd5GTJrlwItIJJtT2VuOiwIzb/QEMNICwI=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "c32bd049ad54e6a8c1300164061a6e18de6781bc",
+        "lastModified": 1725781935,
+        "narHash": "sha256-o6LRtdpgBTzev9n243Ktu3rn0/qsv0frFyJwU6vJsdE=",
+        "owner": "FZDSLR",
+        "repo": "home-manager-loong99pi",
+        "rev": "ec4c6928bbacc89cf10e9c959a7a47cbaad95344",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixos-unstable-small",
-        "repo": "nixpkgs",
+        "owner": "FZDSLR",
+        "ref": "master",
+        "repo": "home-manager-loong99pi",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1727186548,
+        "narHash": "sha256-ChzhSS+KuNnMH0WS+8MrrAfDu/y5OYMuoLVSx1XFOA0=",
+        "owner": "FZDSLR",
+        "repo": "nixpkg-loong64-test",
+        "rev": "cc2167a1560bab1cab2ca6d26e43f62a5137348a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "FZDSLR",
+        "ref": "test",
+        "repo": "nixpkg-loong64-test",
         "type": "github"
       }
     },
     "root": {
       "inputs": {
+        "home-manager": "home-manager",
         "nixpkgs": "nixpkgs"
       }
     }

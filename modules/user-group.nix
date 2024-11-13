@@ -1,3 +1,5 @@
+{ lib, pkgs, ... }:
+
 let
   username = "loong";
   hostname = "loongarch-99pi";
@@ -13,29 +15,13 @@ in {
   #      Users & Groups NixOS Configuration
   # =========================================================================
 
-  networking.hostName = hostname;
+  networking.hostName = lib.mkDefault hostname;
 
-  users.users."root" = {
-    openssh.authorizedKeys.keys = [
+  users.users.root = {
+    openssh.authorizedKeys.keys = lib.mkDefault [
       publickey
     ];
   };
-
-  # TODO Define a user account. Don't forget to update this!
-  users.users."${username}" = {
-    inherit hashedPassword;
-
-    isNormalUser = true;
-    home = "/home/${username}";
-    extraGroups = ["users" "networkmanager" "wheel" "docker"];
-    openssh.authorizedKeys.keys = [
-      publickey
-    ];
-  };
-
-#  users.users.root.openssh.authorizedKeys.keys = [
-#    publickey
-#  ];
 
   users.groups = {
     "${username}" = {};

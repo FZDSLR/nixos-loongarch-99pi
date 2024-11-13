@@ -2,12 +2,17 @@
   description = "NixOS running on Loongarch 99pi";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:FZDSLR/nixpkg-loong64-test/test";
+    home-manager = {
+      url = "github:FZDSLR/home-manager-loong99pi/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
+    home-manager,
     ...
   }: let
     buildFeaturesKernel = {
@@ -32,13 +37,21 @@
 
       specialArgs = {
         inherit nixpkgs;
+        inherit home-manager;
       };
       modules = [
         ./modules/nixos-loong-cross-system.nix
         ./modules/loong99pi-conf.nix
         ./modules/sd-image/sd-image-99pi.nix
         ./modules/user-group.nix
+
         {nixpkgs.config.allowUnsupportedSystem = true;}
+
+        home-manager.nixosModules.home-manager {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.fzdslr = import ./modules/home.nix;
+        }
       ];
     };
     packages.x86_64-linux = {

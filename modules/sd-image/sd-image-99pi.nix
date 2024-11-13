@@ -48,10 +48,11 @@
     # for local usage, do not need to compress it.
     compressImage = false;
     # install firmware into a separate partition: /boot/firmware
-    populateFirmwareCommands = ''
-
+    populateFirmwareCommands = lib.optionalString (config.boot.loader.generic-extlinux-compatible.enable) ''
       ${config.boot.loader.generic-extlinux-compatible.populateCmd} -c ${config.system.build.toplevel} -d ./firmware
-    ''; # 驱动
+      '' + lib.optionalString (config.boot.loader.generic-extlinux-and-bootscr.enable) ''
+        ${config.boot.loader.generic-extlinux-and-bootscr.populateCmd} -c ${config.system.build.toplevel} -d ./firmware
+      ''; # 驱动
     firmwarePartitionName = "BOOT";
     firmwareSize = 200; # MiB
 
